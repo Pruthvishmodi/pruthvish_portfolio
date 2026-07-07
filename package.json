@@ -1,0 +1,11 @@
+{
+  "name": "personal-portfolio-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix personal-portfolio",
+    "build": "npm run build --prefix personal-portfolio",
+    "start": "npm run start --prefix personal-portfolio",
+    "lint": "npm run lint --prefix personal-portfolio",
+    "payload": "npm run payload --prefix personal-portfolio"
+  }
+}
