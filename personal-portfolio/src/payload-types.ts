@@ -295,6 +295,12 @@ export interface PersonalPortfolioBlock {
     downloadCvLabel?: string | null;
     downloadCvFile?: (number | null) | Media;
     heroImage: number | Media;
+    introduction?: string | null;
+    location?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    linkedinLabel?: string | null;
+    linkedinLink?: string | null;
   };
   /**
    * Shown as circular progress rings below the Core Mastery cards.
@@ -363,7 +369,7 @@ export interface PersonalPortfolioBlock {
     timeline?:
       | {
           company: string;
-          duration: string;
+          duration?: string | null;
           role: string;
           description: string;
           color?: ('primary' | 'secondary' | 'tertiary') | null;
@@ -958,6 +964,12 @@ export interface PersonalPortfolioBlockSelect<T extends boolean = true> {
         downloadCvLabel?: T;
         downloadCvFile?: T;
         heroImage?: T;
+        introduction?: T;
+        location?: T;
+        email?: T;
+        phone?: T;
+        linkedinLabel?: T;
+        linkedinLink?: T;
       };
   marqueeSkills?:
     | T

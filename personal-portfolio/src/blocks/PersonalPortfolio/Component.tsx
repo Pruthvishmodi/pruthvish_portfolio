@@ -31,6 +31,11 @@ import {
   Zap,
   CreditCard,
   Truck,
+  Mail,
+  Phone,
+  Linkedin,
+  Laptop,
+  Monitor,
 } from 'lucide-react'
 import type { Media, Portfolio as PortfolioType } from '@/payload-types'
 
@@ -55,6 +60,12 @@ export interface PersonalPortfolioBlockProps {
     downloadCvLabel?: string | null
     downloadCvFile?: number | Media | null
     heroImage: number | Media
+    introduction?: string | null
+    location?: string | null
+    email?: string | null
+    phone?: string | null
+    linkedinLabel?: string | null
+    linkedinLink?: string | null
   } | null
   marqueeSkills?: {
     label: string
@@ -93,7 +104,7 @@ export interface PersonalPortfolioBlockProps {
     title?: string | null
     timeline?: {
       company: string
-      duration: string
+      duration?: string | null
       role: string
       description: string
       color?: 'primary' | 'secondary' | 'tertiary' | null
@@ -318,20 +329,57 @@ const getCategoryIcon = (iconName: string, className = "w-5 h-5") => {
   }
 }
 
+const getServiceIcon = (iconName: string | null | undefined, className = "w-6 h-6") => {
+  if (!iconName) return <Sparkles className={className} />
+  switch (iconName.toLowerCase()) {
+    case 'globe':
+      return <Globe className={className} />
+    case 'dns':
+    case 'server':
+      return <Server className={className} />
+    case 'smartphone':
+    case 'mobile':
+      return <Smartphone className={className} />
+    case 'code':
+    case 'devops':
+      return <Code2 className={className} />
+    case 'laptop_mac':
+    case 'computer':
+    case 'consulting':
+    case 'monitor':
+      return <Laptop className={className} />
+    default:
+      return <Sparkles className={className} />
+  }
+}
+
 
 // ─── Floating Particles Background ───────────────────────────────────────────────────────────
 const FloatingParticles: React.FC = () => {
-  const particles = useMemo(() => {
-    return Array.from({ length: 30 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      duration: Math.random() * 15 + 10,
-      delay: Math.random() * 8,
-      opacity: Math.random() * 0.5 + 0.1,
-    }))
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
   }, [])
+
+  const particles = useMemo(() => {
+    if (!mounted) return []
+    return Array.from({ length: 30 }, (_, i) => {
+      const opacity = Math.random() * 0.5 + 0.1
+      return {
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        duration: Math.random() * 15 + 10,
+        delay: Math.random() * 8,
+        opacity,
+        driftX: Math.random() * 20 - 10,
+      }
+    })
+  }, [mounted])
+
+  if (!mounted) return null
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -348,7 +396,7 @@ const FloatingParticles: React.FC = () => {
           }}
           animate={{
             y: [0, -30, 0],
-            x: [0, Math.random() * 20 - 10, 0],
+            x: [0, p.driftX, 0],
             opacity: [p.opacity, p.opacity * 1.8, p.opacity],
           }}
           transition={{
@@ -424,8 +472,7 @@ const StatCard: React.FC<{ number: string; label: string; delay?: number }> = ({
       initial={{ opacity: 0, scale: 0.85, y: 20 }}
       animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="premium-card p-6 rounded-2xl flex-1 text-center cursor-default"
-      style={{ minWidth: 140 }}
+      className="premium-card p-5 rounded-2xl text-center cursor-default w-full"
     >
       <motion.p
         initial={{ opacity: 0 }}
@@ -518,6 +565,108 @@ const CustomProjectCard: React.FC<CustomProjectCardProps> = ({ project, types, i
         </h4>
       </div>
     </motion.div>
+  )
+}
+
+const getTimelineColor = (color?: string | null) => {
+  // Always return the standard brand blue theme to avoid colorful dots
+  return {
+    text: 'text-foreground',
+    dot: 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] border-blue-400 ring-blue-500/30',
+    border: 'border-blue-500/20',
+    glow: 'rgba(59, 130, 246, 0.15)',
+  }
+}
+
+interface TimelineProject {
+  title?: string
+  description?: string
+  stack?: string[]
+}
+
+const parseTimelineDescription = (text: string): TimelineProject[] => {
+  if (!text) return []
+
+  const projectBlocks = text.split('\n\n').filter(Boolean)
+  const projects: TimelineProject[] = []
+
+  projectBlocks.forEach(block => {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean)
+    let title = ''
+    let description = ''
+    let stack: string[] = []
+
+    lines.forEach(line => {
+      if (line.startsWith('Stack:')) {
+        stack = line.replace('Stack:', '').split(',').map(t => t.trim()).filter(Boolean)
+      } else if (line.startsWith('•') || line.startsWith('-')) {
+        const content = line.substring(1).trim()
+        const colonIndex = content.indexOf(':')
+        if (colonIndex !== -1) {
+          title = content.substring(0, colonIndex).trim()
+          description = content.substring(colonIndex + 1).trim()
+        } else {
+          description = content
+        }
+      } else {
+        if (!description) {
+          description = line
+        } else {
+          description += ' ' + line
+        }
+      }
+    })
+
+    if (title || description || stack.length > 0) {
+      projects.push({ title, description, stack })
+    }
+  })
+
+  return projects
+}
+
+const renderTimelineDescription = (text: string) => {
+  const projects = parseTimelineDescription(text)
+  
+  if (projects.length === 0) return null
+
+  return (
+    <div className="space-y-8">
+      {projects.map((project, idx) => (
+        <div key={idx} className="flex flex-col space-y-3">
+          <div className="text-left space-y-2">
+            {project.title && (
+              <div className="space-y-1">
+                <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-muted-foreground/60 block">
+                  Key Project
+                </span>
+                <h5 className="font-bold text-foreground text-lg md:text-xl tracking-tight">
+                  {project.title}
+                </h5>
+              </div>
+            )}
+            {project.description && (
+              <p className="text-muted-foreground text-base md:text-lg leading-relaxed mt-2">
+                {project.description}
+              </p>
+            )}
+          </div>
+          
+          {project.stack && project.stack.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 pt-1.5">
+              {project.stack.map((tech, techIdx) => (
+                <span
+                  key={techIdx}
+                  className="px-3 py-1.5 rounded text-xs md:text-sm font-semibold bg-zinc-100 dark:bg-zinc-900/40 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -901,10 +1050,21 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
               <span className="text-gradient">{hero?.titleHighlight || 'Pruthvish Modi'}</span>
             </motion.h1>
 
+            {hero?.introduction && (
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-200 mt-1"
+              >
+                {hero.introduction}
+              </motion.h2>
+            )}
+
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.25 }}
               className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-lg"
             >
               {hero?.description}
@@ -915,33 +1075,71 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex items-center gap-8 mt-4"
+              className="flex items-center gap-8 mt-2"
             >
               <div className="flex flex-col">
-                <span className="text-4xl md:text-5xl font-black text-gradient">{hero?.experienceYears || '10+'}</span>
+                <span className="text-4xl md:text-5xl font-black text-gradient">
+                  {(() => {
+                    const exp = hero?.experienceYears || '10'
+                    return /^\d+$/.test(exp) ? `${exp}+` : exp
+                  })()}
+                </span>
                 <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mt-1">
                   {hero?.experienceLabel || 'YEARS EXPERIENCE'}
                 </span>
               </div>
               <div className="h-16 w-[1px] bg-blue-800/50" />
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-bold text-foreground">{hero?.certificationTitle || 'IDF CERTIFIED'}</span>
+                <span className="text-xl md:text-2xl font-bold text-foreground">
+                  {(() => {
+                    const cert = hero?.certificationTitle || '15'
+                    return /^\d+$/.test(cert) ? `${cert}+` : cert
+                  })()}
+                </span>
                 <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
                   {hero?.certificationLabel || 'PROFESSIONAL UI/UX'}
                 </span>
               </div>
             </motion.div>
 
+            {(hero?.location || hero?.email || hero?.phone) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+                className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 text-sm text-slate-600 dark:text-slate-400 font-semibold"
+              >
+                {hero?.location && (
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                    <span>{hero.location}</span>
+                  </div>
+                )}
+                {hero?.email && (
+                  <a href={`mailto:${hero.email}`} className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                    <span>{hero.email}</span>
+                  </a>
+                )}
+                {hero?.phone && (
+                  <a href={`tel:${hero.phone}`} className="flex items-center gap-1.5 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <Phone className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                    <span>{hero.phone}</span>
+                  </a>
+                )}
+              </motion.div>
+            )}
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex gap-4 mt-6 flex-wrap"
+              className="flex gap-4 mt-4 flex-wrap"
             >
               {hero?.sayHiLabel && (
                 <Link
                   href={hero.sayHiLink || '#contact'}
-                  className="btn-dark px-8 py-3.5 rounded-lg text-base text-white font-bold hover:scale-105 transition-transform inline-flex items-center gap-2"
+                  className="border border-slate-900 dark:border-slate-100 text-slate-900 dark:text-slate-100 hover:bg-slate-900 hover:text-white dark:hover:bg-slate-100 dark:hover:text-slate-900 px-8 py-3.5 rounded-lg text-base font-bold transition-all inline-flex items-center gap-2"
                 >
                   {hero.sayHiLabel}
                   <ArrowRight className="w-4 h-4" />
@@ -952,10 +1150,21 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
                   href={cvFileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass-panel px-8 py-3.5 rounded-lg text-base text-slate-800 font-bold border border-slate-300 hover:border-slate-400 hover:bg-slate-50/50 transition-all inline-flex items-center gap-2"
+                  className="border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 px-8 py-3.5 rounded-lg text-base font-bold transition-all inline-flex items-center gap-2"
                 >
                   {hero.downloadCvLabel}
                   <ExternalLink className="w-4 h-4 opacity-60" />
+                </a>
+              )}
+              {hero?.linkedinLink && (
+                <a
+                  href={hero.linkedinLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/30 px-8 py-3.5 rounded-lg text-base font-bold transition-all inline-flex items-center gap-2"
+                >
+                  <Linkedin className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                  {hero.linkedinLabel || 'LinkedIn'}
                 </a>
               )}
             </motion.div>
@@ -1152,8 +1361,9 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
         <section className="py-24 max-w-7xl mx-auto px-6 relative" id="services">
           <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+            {/* Left Section: Badge, Title, Description, Stats */}
+            <div className="lg:col-span-5 lg:sticky lg:top-28">
               <span className="section-badge mb-4 inline-flex">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                 Services
@@ -1162,7 +1372,7 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl md:text-5xl font-black leading-tight mt-4"
+                className="text-4xl md:text-5xl font-black leading-tight mt-4 text-[#0d1f3d]"
               >
                 {expertise.title || 'Services to navigate your Growth'}
               </motion.h2>
@@ -1172,154 +1382,152 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2 }}
-                  className="text-muted-foreground text-lg mt-4 leading-relaxed"
+                  className="text-muted-foreground text-lg mt-6 leading-relaxed"
                 >
                   {expertise.description}
                 </motion.p>
               )}
+
+              {/* Stats */}
+              {expertise.stats && expertise.stats.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mt-8 w-full border-t border-slate-200/60 pt-6">
+                  {expertise.stats.map((stat, idx) => (
+                    <motion.div
+                      key={stat.id || idx}
+                      initial={{ opacity: 0, y: 15 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: idx * 0.08 }}
+                      className="flex flex-col"
+                    >
+                      <span className="text-2xl md:text-3xl font-black text-gradient leading-none">
+                        {stat.number.endsWith('+') ? stat.number : `${stat.number}+`}
+                      </span>
+                      <span className="text-[8px] md:text-[9px] font-bold text-muted-foreground mt-1.5 uppercase tracking-wider leading-snug">
+                        {stat.label}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Stats */}
-            {expertise.stats && expertise.stats.length > 0 && (
-              <div className="flex gap-5 justify-start lg:justify-end items-center flex-wrap">
-                {expertise.stats.map((stat, idx) => (
-                  <StatCard key={stat.id || idx} number={stat.number} label={stat.label} delay={idx * 0.12} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Service Cards — Consistent White + Navy + Blue Design */}
-          {expertise.cards && expertise.cards.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {expertise.cards.map((card, idx) => {
-                // All cards are identical white style
-
-                return (
-                  <motion.div
-                    key={card.id || idx}
-                    initial={{ opacity: 0, y: 35 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -6 }}
-                    className="group relative rounded-2xl overflow-hidden cursor-default flex flex-col"
-                    style={{
-                      background: '#ffffff',
-                      border: '1.5px solid rgba(191, 213, 245, 0.9)',
-                      boxShadow: '0 2px 16px rgba(30, 60, 120, 0.06)',
-                      transition: 'box-shadow 0.3s ease, border-color 0.3s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.boxShadow = '0 16px 48px rgba(59, 130, 246, 0.14), 0 2px 8px rgba(30, 60, 120, 0.08)'
-                      el.style.borderColor = 'rgba(59, 130, 246, 0.45)'
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.boxShadow = '0 2px 16px rgba(30, 60, 120, 0.06)'
-                      el.style.borderColor = 'rgba(191, 213, 245, 0.9)'
-                    }}
-                  >
-                    {/* Blue left border accent — grows in on hover */}
-                    <div
-                      className="absolute left-0 top-6 bottom-6 w-[3px] rounded-full scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-500"
-                      style={{ background: 'linear-gradient(180deg, #bfdbfe, #3b82f6, #bfdbfe)' }}
-                    />
-
-                    {/* Top-right number watermark */}
-                    <div
-                      className="absolute top-5 right-6 text-[64px] font-black leading-none select-none pointer-events-none transition-opacity duration-500"
-                      style={{ color: 'rgba(59, 130, 246, 0.06)' }}
+            {/* Right Section: Vertical Stack of Rectangle Cards */}
+            <div className="lg:col-span-7 flex flex-col gap-6 w-full">
+              {expertise.cards && expertise.cards.length > 0 && (
+                expertise.cards.map((card, idx) => {
+                  return (
+                    <motion.div
+                      key={card.id || idx}
+                      initial={{ opacity: 0, y: 35 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                      whileHover={{ x: 6 }}
+                      className="group relative rounded-2xl overflow-hidden cursor-default w-full"
+                      style={{
+                        background: '#ffffff',
+                        border: '1.5px solid rgba(191, 213, 245, 0.9)',
+                        boxShadow: '0 2px 16px rgba(30, 60, 120, 0.06)',
+                        transition: 'box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget as HTMLElement
+                        el.style.boxShadow = '0 16px 48px rgba(59, 130, 246, 0.12), 0 2px 8px rgba(30, 60, 120, 0.06)'
+                        el.style.borderColor = 'rgba(59, 130, 246, 0.45)'
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget as HTMLElement
+                        el.style.boxShadow = '0 2px 16px rgba(30, 60, 120, 0.06)'
+                        el.style.borderColor = 'rgba(191, 213, 245, 0.9)'
+                      }}
                     >
-                      {String(idx + 1).padStart(2, '0')}
-                    </div>
-
-                    {/* Hover blue tint overlay */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{ background: 'linear-gradient(135deg, rgba(239,246,255,0.6) 0%, transparent 70%)' }}
-                    />
-
-                    <div className="relative z-10 p-7 flex flex-col flex-1 gap-5">
-
-                      {/* Icon + number row */}
-                      <div className="flex items-start justify-between">
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
-                          style={{
-                            background: 'rgba(239, 246, 255, 1)',
-                            border: '1.5px solid rgba(147, 197, 253, 0.6)',
-                            color: '#1e40af',
-                          }}
-                        >
-                          {card.icon && (
-                            <span className="material-symbols-outlined text-[22px] leading-none">{card.icon}</span>
-                          )}
-                        </div>
-
-                        <span
-                          className="text-[12px] font-black tracking-[0.15em] mt-1"
-                          style={{ color: 'rgba(59, 130, 246, 0.3)' }}
-                        >
-                          {String(idx + 1).padStart(2, '0')}
-                        </span>
-                      </div>
-
-                      {/* Title */}
-                      <div>
-                        <h3
-                          className="text-[17px] font-black leading-snug mb-2 transition-colors duration-300 group-hover:text-blue-700"
-                          style={{ color: '#0d1f3d' }}
-                        >
-                          {card.title}
-                        </h3>
-                        {card.description && (
-                          <p
-                            className="text-[13px] leading-relaxed line-clamp-3"
-                            style={{ color: 'rgba(30, 58, 138, 0.5)' }}
-                          >
-                            {card.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Spacer */}
-                      <div className="flex-1" />
-
-                      {/* Divider */}
+                      {/* Left border accent — grows in on hover */}
                       <div
-                        className="h-px"
-                        style={{ background: 'rgba(191, 213, 245, 0.7)' }}
+                        className="absolute left-0 top-0 bottom-0 w-[4px] rounded-l-full scale-y-0 group-hover:scale-y-100 origin-center transition-transform duration-500"
+                        style={{ background: 'linear-gradient(180deg, #bfdbfe, #3b82f6, #bfdbfe)' }}
                       />
 
-                      {/* Footer */}
-                      <div className="flex items-center justify-between">
-                        <span
-                          className="text-[10px] font-bold tracking-[0.18em] uppercase"
-                          style={{ color: '#3b82f6' }}
-                        >
-                          {card.projectsCountText || 'Read more'}
-                        </span>
+                      {/* Hover blue tint overlay */}
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{ background: 'linear-gradient(90deg, rgba(239,246,255,0.6) 0%, transparent 60%)' }}
+                      />
 
-                        <motion.div
-                          whileHover={{ x: 3 }}
-                          className="w-8 h-8 rounded-full flex items-center justify-center"
-                          style={{
-                            background: 'rgba(239, 246, 255, 1)',
-                            border: '1.5px solid rgba(147, 197, 253, 0.7)',
-                            color: '#1e40af',
-                          }}
-                        >
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </motion.div>
+                      <div className="relative z-10 py-4 px-5 md:px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        
+                        {/* Left part: Icon & Title/Description */}
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          {/* Icon Container */}
+                          <div
+                            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-105"
+                            style={{
+                              background: 'rgba(239, 246, 255, 1)',
+                              border: '1.5px solid rgba(147, 197, 253, 0.6)',
+                              color: '#1e40af',
+                            }}
+                          >
+                            {getServiceIcon(card.icon, "w-5 h-5")}
+                          </div>
+
+                          {/* Content */}
+                          <div className="min-w-0">
+                            <h3
+                              className="text-base font-black leading-tight mb-1 transition-colors duration-300 group-hover:text-blue-700"
+                              style={{ color: '#0d1f3d' }}
+                            >
+                              {card.title}
+                            </h3>
+                            {card.description && (
+                              <p
+                                className="text-xs leading-relaxed"
+                                style={{ color: 'rgba(30, 58, 138, 0.6)' }}
+                              >
+                                {card.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Right part: Number & CTA Button */}
+                        <div className="flex items-center gap-4 shrink-0 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-blue-100/50">
+                          <div className="flex items-center gap-3">
+                            {card.projectsCountText && card.projectsCountText !== 'READ MORE' && (
+                              <span
+                                className="text-xs font-bold tracking-wider"
+                                style={{ color: '#3b82f6' }}
+                              >
+                                {card.projectsCountText}
+                              </span>
+                            )}
+                            <span
+                              className="text-xs font-black tracking-wider select-none"
+                              style={{ color: 'rgba(59, 130, 246, 0.25)' }}
+                            >
+                              {String(idx + 1).padStart(2, '0')}
+                            </span>
+                          </div>
+
+                          <motion.div
+                            whileHover={{ x: 3 }}
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{
+                              background: 'rgba(239, 246, 255, 1)',
+                              border: '1.5px solid rgba(147, 197, 253, 0.7)',
+                              color: '#1e40af',
+                            }}
+                          >
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </motion.div>
+                        </div>
+
                       </div>
-                    </div>
-                  </motion.div>
-                )
-              })}
+                    </motion.div>
+                  )
+                })
+              )}
             </div>
-          )}
+          </div>
         </section>
       )}
 
@@ -1329,81 +1537,65 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
           <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-          <div className="max-w-4xl mx-auto px-6 relative z-10">
-            <SectionTitle
-              badge="Career"
-              title={<>{workExperience.title || 'Professional Journey'}</>}
-              subtitle="A decade of designing and building for the future."
-              theme="light"
-            />
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            {/* Standardized Section Badge & Heading */}
+            <div className="mb-16 text-left">
+              <span className="section-badge mb-4 inline-flex">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                Experience
+              </span>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-4xl md:text-5xl font-black tracking-tight mt-4 text-[#0d1f3d] dark:text-foreground"
+              >
+                {workExperience.title || 'My Work Experience'}
+              </motion.h2>
+            </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="divide-y divide-zinc-200 dark:divide-zinc-800/80">
               {workExperience.timeline.map((item, idx) => {
-                const colors = [
-                  { border: '#3b82f6', text: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border2: 'rgba(59,130,246,0.2)' },
-                  { border: '#14c8d4', text: '#14c8d4', bg: 'rgba(20,200,212,0.08)', border2: 'rgba(20,200,212,0.2)' },
-                  { border: '#8080f8', text: '#8080f8', bg: 'rgba(128,128,248,0.08)', border2: 'rgba(128,128,248,0.2)' },
-                ]
-                const c = colors[idx % colors.length]
-
-                const roleTags: string[] = []
-                const roleLower = item.role.toLowerCase()
-                if (roleLower.includes('designer') || roleLower.includes('design')) {
-                  roleTags.push('UI/UX DESIGN', 'PRODUCT STRATEGY')
-                  roleTags.push(roleLower.includes('lead') || roleLower.includes('sr') ? 'LEADERSHIP' : 'WIREFRAMING')
-                } else if (roleLower.includes('developer') || roleLower.includes('engineer') || roleLower.includes('code')) {
-                  roleTags.push('FRONTEND DEV', 'SOFTWARE ENG')
-                  roleTags.push(roleLower.includes('fullstack') || roleLower.includes('full-stack') ? 'FULLSTACK' : 'JAVASCRIPT')
-                } else {
-                  roleTags.push('PROJECT WORK', 'PRODUCT STRATEGY')
-                }
+                const [companyName, ...locationParts] = item.company.split(',')
+                const companyLocation = locationParts.join(',').trim()
 
                 return (
-                  <motion.div
+                  <div
                     key={item.id || idx}
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.12, duration: 0.6 }}
-                    className="premium-card p-8 rounded-3xl relative overflow-hidden group"
+                    className="py-12 first:pt-0 last:pb-0 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start"
                   >
-                    {/* Subtle left glow */}
-                    <div
-                      className="absolute left-0 top-0 bottom-0 w-[200px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{ background: 'linear-gradient(to right, rgba(13, 31, 61, 0.04), transparent)' }}
-                    />
-
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 relative z-10">
-                      <div>
-                        <h4 className="text-2xl font-black text-foreground">{item.role}</h4>
-                        <p className="font-semibold mt-1 flex items-center gap-2 text-foreground">
-                          <Briefcase className="w-4 h-4 text-foreground/80" />
-                          {item.company}
-                          <span className="font-normal opacity-60 text-muted-foreground text-sm">• Full-time</span>
+                    {/* Left Column: Company Info (5/12 cols, aligns with Services left column) */}
+                    <div className="lg:col-span-5 flex flex-col space-y-1 text-left">
+                      <h4 className="text-xl md:text-2xl font-black text-foreground tracking-tight leading-tight">
+                        {companyName}
+                      </h4>
+                      {companyLocation && (
+                        <p className="text-sm text-muted-foreground font-semibold uppercase tracking-wider">
+                          {companyLocation}
                         </p>
+                      )}
+                      {item.duration && (
+                        <p className="text-sm text-muted-foreground/60 font-semibold tracking-wider uppercase mt-1">
+                          {item.duration}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Right Column: Role & Content (7/12 cols, aligns with Services right cards column) */}
+                    <div className="lg:col-span-7 flex flex-col space-y-6 text-left">
+                      <div>
+                        <h3 className="text-2xl md:text-3xl font-black text-foreground tracking-tight leading-tight">
+                          {item.role}
+                        </h3>
                       </div>
-                      <div
-                        className="px-4 py-1.5 rounded-full font-bold text-xs h-fit border border-border bg-[#0d1f3d]/5 text-foreground whitespace-nowrap"
-                      >
-                        {item.duration.toUpperCase()}
+
+                      {/* Content Description */}
+                      <div className="relative z-10">
+                        {renderTimelineDescription(item.description)}
                       </div>
                     </div>
 
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-3xl relative z-10">
-                      {item.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 relative z-10">
-                      {roleTags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 rounded text-[10px] font-bold bg-[#0d1f3d]/5 text-foreground border border-border/50"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </motion.div>
+                  </div>
                 )
               })}
             </div>
