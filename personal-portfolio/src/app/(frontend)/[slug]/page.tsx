@@ -5,6 +5,9 @@ import React from 'react'
 import { RenderBlocks } from '@/components/RenderBlocks'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
   
@@ -56,19 +59,4 @@ export default async function PageBySlug({ params: paramsPromise }: Args) {
   return (
     <RenderBlocks blocks={page.layout} />
   )
-}
-
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const result = await payload.find({
-    collection: 'pages',
-    limit: 100,
-    select: {
-      slug: true,
-    },
-  })
-
-  return result.docs.map((doc) => ({
-    slug: doc.slug,
-  }))
 }
