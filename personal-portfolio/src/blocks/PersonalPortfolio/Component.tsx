@@ -1564,7 +1564,7 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
               >
                 {heroImageUrl && (
                   <Image
-                    src={heroImageUrl}
+                    src={"/images/hero.jpg"}
                     alt={heroImageAlt}
                     fill
                     className="w-full h-full object-cover rounded-full"
