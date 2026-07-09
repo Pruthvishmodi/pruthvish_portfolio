@@ -39,6 +39,7 @@ import {
   Monitor,
 } from 'lucide-react'
 import type { Media, Portfolio as PortfolioType } from '@/payload-types'
+import { getMediaUrl } from '@/utilities/media'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export interface PersonalPortfolioBlockProps {
@@ -789,8 +790,9 @@ const CustomProjectCard: React.FC<CustomProjectCardProps> = ({ project, types, i
     : null
 
   const tscImg = getTscProjectImage(project.slug)
-  const isPlaceholder = !coverImage?.url || coverImage.url.includes('pruthvish')
-  const imageUrl = (isPlaceholder && tscImg) ? tscImg : (coverImage?.url || fallbackThumbnailUrl || tscImg || '')
+  const coverImageUrl = coverImage?.url ? getMediaUrl(coverImage.url) : ''
+  const isPlaceholder = !coverImageUrl || coverImageUrl.includes('pruthvish')
+  const imageUrl = (isPlaceholder && tscImg) ? tscImg : (coverImageUrl || fallbackThumbnailUrl || tscImg || '')
   const hasImage = !!imageUrl
 
   const domains = Array.isArray(project.domain) ? project.domain : project.domain ? [project.domain] : []
@@ -1098,13 +1100,17 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
     }, 10)
   }
 
-  // Hero image — always use local static photo (CMS image is just a placeholder)
-  const heroImageUrl = '/images/hero.jpg'
-  const heroImageAlt = 'Pruthvish Modi'
+  // Hero image
+  const heroImageObj = hero?.heroImage as Media
+  const rawHeroUrl = heroImageObj?.url ? getMediaUrl(heroImageObj.url) : ''
+  const heroImageUrl = (!rawHeroUrl || rawHeroUrl.includes('pruthvish-'))
+    ? '/images/hero.jpg'
+    : rawHeroUrl
+  const heroImageAlt = heroImageObj?.alt || 'Pruthvish Modi'
 
   // CV File
   const cvFileObj = hero?.downloadCvFile as Media
-  const cvFileUrl = cvFileObj?.url && !cvFileObj.url.endsWith('Pruthvish_Modi_CV-3.pdf') ? cvFileObj.url : '/media/Pruthvish_Modi_CV-3.pdf'
+  const cvFileUrl = cvFileObj?.url ? getMediaUrl(cvFileObj.url) : '/media/Pruthvish_Modi_CV-3.pdf'
 
   // Scroll parallax
   const [scrollY, setScrollY] = useState(0)
@@ -1564,7 +1570,7 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
               >
                 {heroImageUrl && (
                   <Image
-                    src={"/images/hero.jpg"}
+                    src={heroImageUrl}
                     alt={heroImageAlt}
                     fill
                     className="w-full h-full object-cover rounded-full"
@@ -2196,7 +2202,7 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
               {testimonials.map((item, idx) => {
                 const avatarObj = item.avatar as Media
-                const avatarUrl = avatarObj?.url || ''
+                const avatarUrl = getMediaUrl(avatarObj?.url)
                 const avatarAlt = avatarObj?.alt || item.name
 
                 const accentColor = '#0d1f3d'

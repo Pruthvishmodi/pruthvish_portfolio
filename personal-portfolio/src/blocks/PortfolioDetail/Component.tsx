@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import type { Media, Portfolio } from '@/payload-types'
+import { getMediaUrl } from '@/utilities/media'
 import RichText from '@/components/RichText'
 import { TSC_PROJECT_DATA } from './tscProjectData'
 
@@ -168,18 +169,21 @@ export const PortfolioDetailComponent: React.FC<{
   // ── Derive thumbnails ─────────────────────────────────────────────────────
   const hasVideo = !!youtubeVideoUrl || !!shortVideo
   const videoId = youtubeVideoUrl && isYouTube(youtubeVideoUrl) ? getYouTubeId(youtubeVideoUrl) : null
-  const localVideoUrl = shortVideo && typeof shortVideo === 'object' ? (shortVideo as Media).url : null
+  const localVideoUrl = shortVideo && typeof shortVideo === 'object' ? getMediaUrl((shortVideo as Media).url) : null
 
   const thumbItems = useMemo<ThumbItem[]>(() => {
     const items: ThumbItem[] = []
 
     // If video exists, add it as the first item
     if (hasVideo && (videoId || localVideoUrl)) {
+      const firstScreenshotUrl = (screenshots?.[0]?.image as Media)?.url
       const videoThumbUrl = videoThumbnail
-        ? (videoThumbnail as Media).url
+        ? getMediaUrl((videoThumbnail as Media).url)
         : videoId
         ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
-        : (screenshots?.[0]?.image as Media)?.url
+        : firstScreenshotUrl
+        ? getMediaUrl(firstScreenshotUrl)
+        : ''
       
       items.push({
         type: 'video',
@@ -197,7 +201,7 @@ export const PortfolioDetailComponent: React.FC<{
         if (m?.url) {
           items.push({
             type: 'image',
-            url: m.url,
+            url: getMediaUrl(m.url),
             alt: m.alt || s.caption || '',
             caption: s.caption || undefined,
           })
@@ -211,7 +215,7 @@ export const PortfolioDetailComponent: React.FC<{
       if (coverMedia?.url) {
         items.push({
           type: 'image',
-          url: coverMedia.url,
+          url: getMediaUrl(coverMedia.url),
           alt: coverMedia.alt || title || '',
         })
       }

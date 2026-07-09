@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Media, Portfolio as PortfolioType } from '@/payload-types'
+import { getMediaUrl } from '@/utilities/media'
 import {
   X,
   Smartphone,
@@ -89,9 +90,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, customTitle, 
     ? `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`
     : null
 
-  const hasImage = !!coverImage?.url || !!fallbackThumbnailUrl
-  const imageUrl = coverImage?.url || fallbackThumbnailUrl || ''
-  const isFallback = !coverImage?.url && !!fallbackThumbnailUrl
+  const coverImageUrl = coverImage?.url ? getMediaUrl(coverImage.url) : ''
+  const hasImage = !!coverImageUrl || !!fallbackThumbnailUrl
+  const imageUrl = coverImageUrl || fallbackThumbnailUrl || ''
+  const isFallback = !coverImageUrl && !!fallbackThumbnailUrl
 
   return (
     <motion.div
