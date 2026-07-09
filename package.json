@@ -10,5 +10,9 @@
     "start": "npm run start --prefix personal-portfolio",
     "lint": "npm run lint --prefix personal-portfolio",
     "payload": "npm run payload --prefix personal-portfolio"
+  },
+  "dependencies": {
+    "@types/pg": "^8.20.0",
+    "pg": "^8.22.0"
   }
 }
