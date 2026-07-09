@@ -1,6 +1,9 @@
 {
   "name": "personal-portfolio-root",
   "private": true,
+  "workspaces": [
+    "personal-portfolio"
+  ],
   "scripts": {
     "dev": "npm run dev --prefix personal-portfolio",
     "build": "npm run build --prefix personal-portfolio",
