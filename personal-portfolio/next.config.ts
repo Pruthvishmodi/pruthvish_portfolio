@@ -33,6 +33,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'pruthvish-portfolio-b2ba.vercel.app',
+      },
     ],
   },
   webpack: (webpackConfig) => {
