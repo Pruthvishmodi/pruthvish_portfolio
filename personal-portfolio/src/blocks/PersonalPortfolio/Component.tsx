@@ -1098,10 +1098,9 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
     }, 10)
   }
 
-  // Hero image
-  const heroImageObj = hero?.heroImage as Media
-  const heroImageUrl = heroImageObj?.url && !heroImageObj.url.endsWith('pruthvish.jpg') ? heroImageObj.url : '/images/hero.jpg'
-  const heroImageAlt = heroImageObj?.alt || 'Pruthvish Modi'
+  // Hero image — always use local static photo (CMS image is just a placeholder)
+  const heroImageUrl = '/images/hero.jpg'
+  const heroImageAlt = 'Pruthvish Modi'
 
   // CV File
   const cvFileObj = hero?.downloadCvFile as Media

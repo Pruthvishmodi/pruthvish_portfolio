@@ -13,8 +13,18 @@ async function getOrCreateImage(payload: any): Promise<number> {
 
   let buffer: Buffer
   try {
-    const res = await fetch('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=500')
-    buffer = Buffer.from(await res.arrayBuffer())
+    const fs = await import('fs')
+    const path = await import('path')
+    const fileURLToPath = await import('url').then(u => u.fileURLToPath)
+    const filename = fileURLToPath(import.meta.url)
+    const dirname = path.dirname(filename)
+    const heroPath = path.resolve(dirname, '../../public/images/hero.jpg')
+    if (fs.existsSync(heroPath)) {
+      buffer = fs.readFileSync(heroPath)
+    } else {
+      // Fallback to tiny placeholder if file not found
+      buffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64')
+    }
   } catch (e) {
     buffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64')
   }
@@ -26,7 +36,7 @@ async function getOrCreateImage(payload: any): Promise<number> {
     },
     file: {
       data: buffer,
-      name: 'pruthvish.jpg',
+      name: 'hero.jpg',
       mimetype: 'image/jpeg',
       size: buffer.length,
     },
