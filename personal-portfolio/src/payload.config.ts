@@ -57,7 +57,7 @@ export default buildConfig({
           secretAccessKey: process.env.SUPABASE_S3_SECRET_ACCESS_KEY || '',
         },
         region: process.env.SUPABASE_S3_REGION || 'us-east-1',
-        endpoint: process.env.SUPABASE_S3_ENDPOINT || 'https://iiklsdxhtwjchqkojgkn.supabase.co/storage/v1/s3',
+        endpoint: process.env.SUPABASE_S3_ENDPOINT || 'https://iiklsdxhtwjchqkojgkn.storage.supabase.co/storage/v1/s3',
       },
       enabled: !!process.env.SUPABASE_S3_ACCESS_KEY_ID,
     }),
