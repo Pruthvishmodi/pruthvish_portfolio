@@ -51,7 +51,7 @@ async function getOrCreateCV(payload: any): Promise<number> {
     const fileURLToPath = await import('url').then(u => u.fileURLToPath)
     const filename = fileURLToPath(import.meta.url)
     const dirname = path.dirname(filename)
-    const cvPath = path.resolve(dirname, '../../public/media/Pruthvish_Modi_CV.pdf')
+    const cvPath = path.resolve(dirname, '../../public/media/Pruthvish_Modi_CV-3.pdf')
     if (fs.existsSync(cvPath)) {
       buffer = fs.readFileSync(cvPath)
     } else {
@@ -68,7 +68,7 @@ async function getOrCreateCV(payload: any): Promise<number> {
     },
     file: {
       data: buffer,
-      name: 'Pruthvish_Modi_CV.pdf',
+      name: 'Pruthvish_Modi_CV-3.pdf',
       mimetype: 'application/pdf',
       size: buffer.length,
     },
@@ -269,7 +269,7 @@ export async function seedDatabase(payload: Payload) {
         { tech: 'Redis' },
         { tech: 'shadcn/ui' },
       ],
-      liveProjectUrl: 'https://yogateria.com',
+      liveProjectUrl: 'https://yogateria.com.br/',
       screenshots: [{ image: profileImageId }],
       _status: 'published',
     },
@@ -295,7 +295,7 @@ export async function seedDatabase(payload: Payload) {
         { tech: 'Stripe' },
         { tech: 'REST APIs' },
       ],
-      liveProjectUrl: 'https://skillmatics.in',
+      liveProjectUrl: 'https://www.skillmatics.in/',
       screenshots: [{ image: profileImageId }],
       _status: 'published',
     },
@@ -325,7 +325,7 @@ export async function seedDatabase(payload: Payload) {
         { tech: 'Redis' },
         { tech: 'Meilisearch' },
       ],
-      liveProjectUrl: 'https://strainex.com',
+      liveProjectUrl: 'https://strinex.com/',
       screenshots: [{ image: profileImageId }],
       _status: 'published',
     },
@@ -386,7 +386,7 @@ export async function seedDatabase(payload: Payload) {
         { tech: 'Facebook Pixel' },
         { tech: 'Hotjar' },
       ],
-      liveProjectUrl: 'https://medicalalert.org.uk',
+      liveProjectUrl: 'https://www.medicalert.org.uk/',
       screenshots: [{ image: profileImageId }],
       _status: 'published',
     },
@@ -414,7 +414,7 @@ export async function seedDatabase(payload: Payload) {
         { tech: 'REST APIs' },
         { tech: 'Vercel' },
       ],
-      liveProjectUrl: 'https://bharatrojgaar.com',
+      liveProjectUrl: 'https://www.bharatrojgar.info/',
       screenshots: [{ image: profileImageId }],
       _status: 'published',
     },
@@ -463,7 +463,7 @@ export async function seedDatabase(payload: Payload) {
       customTechStack: [
         { tech: 'Strapi' },
       ],
-      liveProjectUrl: 'https://55redefined.com',
+      liveProjectUrl: 'https://life-redefined.co/',
       screenshots: [{ image: profileImageId }],
       _status: 'published',
     },
@@ -491,8 +491,8 @@ export async function seedDatabase(payload: Payload) {
         { tech: 'Enzyme' },
         { tech: 'Strapi.js' },
       ],
-      liveProjectUrl: 'https://foodboss.in',
-      androidProjectUrl: 'https://play.google.com/store/apps/details?id=com.foodboss.user',
+      liveProjectUrl: 'https://www.foodboss.co.in/',
+      androidProjectUrl: 'https://play.google.com/store/apps/details?id=com.foodbosscustomer.app&hl=en',
       iosProjectUrl: 'https://apps.apple.com/in/app/foodboss-grocery-ka-boss/id1640038993',
       screenshots: [{ image: profileImageId }],
       _status: 'published',

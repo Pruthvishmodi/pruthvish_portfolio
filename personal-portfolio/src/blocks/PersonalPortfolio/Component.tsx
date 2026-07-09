@@ -1105,7 +1105,7 @@ export const PersonalPortfolioComponent: React.FC<PersonalPortfolioBlockProps> =
 
   // CV File
   const cvFileObj = hero?.downloadCvFile as Media
-  const cvFileUrl = cvFileObj?.url && !cvFileObj.url.endsWith('Pruthvish_Modi_CV.pdf') ? cvFileObj.url : '/media/Pruthvish_Modi_CV.pdf'
+  const cvFileUrl = cvFileObj?.url && !cvFileObj.url.endsWith('Pruthvish_Modi_CV-3.pdf') ? cvFileObj.url : '/media/Pruthvish_Modi_CV-3.pdf'
 
   // Scroll parallax
   const [scrollY, setScrollY] = useState(0)

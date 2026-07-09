@@ -184,7 +184,6 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -865,7 +864,6 @@ export interface MediaSelect<T extends boolean = true> {
   thumbnail?: T;
   duration?: T;
   caption?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

@@ -5769,10 +5769,10 @@
       "PostgreSQL"
     ],
     "customTechStack": [],
-    "liveProjectUrl": "https://apps.apple.com/in/app/idfc-first-bank-mobilebanking/id1521443352",
-    "androidProjectUrl": "",
-    "iosProjectUrl": "",
-    "youtubeVideoUrl": "https://play.google.com/store/apps/details?id=com.idfcfirstbank.optimus&hl=en_IN"
+    "liveProjectUrl": "https://www.idfcfirst.bank.in/",
+    "androidProjectUrl": "https://play.google.com/store/apps/details?id=com.idfcfirstbank.optimus&hl=en_IN",
+    "iosProjectUrl": "https://apps.apple.com/kg/app/idfc-first-bank-mobilebanking/id1521443352",
+    "youtubeVideoUrl": ""
   },
   {
     "slug": "foodboss-e-grocery--food-delivery-platform",
@@ -7578,10 +7578,10 @@
       "Node.js"
     ],
     "customTechStack": [],
-    "liveProjectUrl": "https://apps.apple.com/in/app/foodboss-grocery-ka-boss/id1640038993",
-    "androidProjectUrl": "https://apps.apple.com/in/app/foodboss-grocery-ka-boss/id1640038993",
+    "liveProjectUrl": "https://www.foodboss.co.in/",
+    "androidProjectUrl": "https://play.google.com/store/apps/details?id=com.foodbosscustomer.app&hl=en",
     "iosProjectUrl": "https://apps.apple.com/in/app/foodboss-grocery-ka-boss/id1640038993",
-    "youtubeVideoUrl": "https://play.google.com/store/apps/details?id=com.foodbosscustomer.app&hl=en"
+    "youtubeVideoUrl": ""
   },
   {
     "slug": "jove",
@@ -10815,7 +10815,7 @@
         "tech": "Strapi"
       }
     ],
-    "liveProjectUrl": "https://me-redefined.co/",
+    "liveProjectUrl": "https://life-redefined.co/",
     "androidProjectUrl": "",
     "iosProjectUrl": "",
     "youtubeVideoUrl": ""
@@ -12572,7 +12572,7 @@
         "tech": "Meilisearch"
       }
     ],
-    "liveProjectUrl": "https://strinex.ae/",
+    "liveProjectUrl": "https://strinex.com/",
     "androidProjectUrl": "",
     "iosProjectUrl": "",
     "youtubeVideoUrl": ""
